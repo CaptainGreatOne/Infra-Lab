@@ -1,0 +1,14 @@
+#cloud-config
+
+users:
+  - name: admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: wheel
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL3m/PUx7mP4JbMLdU4p4a3Cae27bagAlojHzPd2pryD infra-lab
+
+ssh_pwauth: false
+
+chpasswd:
+  expire: false

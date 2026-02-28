@@ -1,0 +1,54 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/dev_tools
+
+#goland installation is a bit more complex, so we will handle it separately
+- name: Determine if Golang is already installed
+  ansible.builtin.stat:
+    path: /usr/local/go
+  register: golang_installed
+
+- name: Install Golang
+  ansible.builtin.shell: |
+    wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
+    rm go1.22.4.linux-amd64.tar.gz
+  args: 
+    chdir: /tmp
+  when: not golang_installed.stat.exists
+
+#Add Hashicorp's official repository for Terraform
+- name: Add Hashicorp's official repository for Terraform
+  ansible.builtin.command: |
+    dnf config-manager addrepo --from-repofile=https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+    dnf makecache
+  args:
+    creates: /etc/yum.repos.d/hashicorp.repo
+
+# Install other dev tools
+- name: Install Terraform, ansible, and other dev tools
+  ansible.builtin.dnf:
+    name:
+      - terraform
+      - ansible
+      - libvirt
+      - qemu-kvm
+      - virt-install
+      - virt-manager
+      - libvirt-devel
+    state: latest
+    update_cache: yes
+
+# enable and start libvirtd service
+- name: Enable and start libvirtd service
+  ansible.builtin.service:
+    name: libvirtd
+    state: started
+    enabled: yes
+
+#Add the current user to the libvirt group to allow non-root access
+- name: Add user to libvirt group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: libvirt
+    append: yes

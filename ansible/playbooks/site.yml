@@ -1,0 +1,11 @@
+- name: Update all packages and set hostname
+  hosts: lab_vms
+  become: true
+  roles:
+    # - common
+    # - packages
+    # - shell
+    # - dev_tools
+    - verify
+  # note that other roles are commented out so I can test the verify role independently without having to run the entire playbook. 
+  # Once I'm confident the verify role is working correctly, I can uncomment the other roles and run the full playbook to set up the environment and then verify it again.

@@ -1,0 +1,26 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/packages
+- name: Install packages
+  ansible.builtin.dnf:
+    name:
+      - git
+      - vim
+      - htop
+      - curl
+      - wget
+      - net-tools
+      - unzip
+      - tar
+      - make
+      - gcc
+      - tree
+      - jq
+      - bind-utils
+      - tmux
+      - ripgrep
+      - fzf
+      - fd-find
+      - bat
+    state: latest
+    update_cache: yes

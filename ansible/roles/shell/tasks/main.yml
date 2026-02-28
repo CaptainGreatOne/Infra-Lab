@@ -1,0 +1,129 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/shell
+## This role installs zsh, sets it as the default shell, and configures Oh-My-Zsh with the Powerlevel10k theme and some useful plugins.
+
+## ZSH
+- name: install zsh
+  ansible.builtin.dnf:
+    name:
+      - zsh
+      - util-linux-user
+    state: latest
+    update_cache: yes
+
+- name: change default shell to zsh
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    shell: /bin/zsh
+
+
+# Oh-My-Zsh
+- name: Check if Oh-My-Zsh is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh/oh-my-zsh.sh"
+  register: ohmyzsh_installed
+  become_user: "{{ ansible_user }}"
+
+- name: Install Oh-My-Zsh
+  ansible.builtin.shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  become_user: "{{ ansible_user }}"
+  args:
+    executable: /bin/bash
+  when: not ohmyzsh_installed.stat.exists
+
+
+#EZA - since EZA is not in Fedora repos, we will install it via github release
+- name: Check if EZA is already installed
+  ansible.builtin.stat:
+    path: "/usr/.local/bin/eza"
+  register: eza_installed
+
+- name: Install EZA
+  ansible.builtin.shell: |
+    wget -c https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz -O - | tar xz
+    sudo chmod +x eza
+    sudo chown root:root eza
+    sudo mv eza /usr/local/bin/eza
+  args: 
+    chdir: /tmp
+  when: not eza_installed.stat.exists
+
+
+# Powerlevel10k Theme and Plugins
+- name: Create custom themes directory if it doesn't exist
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh/custom/themes"
+    state: directory
+    owner: "{{ ansible_user }}"
+  become_user: "{{ ansible_user }}"
+
+- name: Check if Powerlevel10k is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+  register: powerlevel10k_installed
+
+- name: Install Powerlevel10k
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "/home/{{ ansible_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1
+  become_user: "{{ ansible_user }}"
+  when: not powerlevel10k_installed.stat.exists
+
+- name: Deploy p10k configuration
+  ansible.builtin.copy:
+    src: /home/admin/Desktop/infra-lab/ansible/roles/shell/templates/p10k.zsh
+    dest: "/home/{{ ansible_user }}/.p10k.zsh"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+
+#Zsh Plugins
+- name: Check if Zsh-Syntax-Highlighting is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  register: zsh_syntax_highlighting_installed
+
+- name: Install Zsh-Syntax-Highlighting
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1
+  become_user: "{{ ansible_user }}"
+  when: not zsh_syntax_highlighting_installed.stat.exists
+
+- name: Check if Zsh-Autosuggestions is already installed
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+  register: zsh_autosuggestions_installed
+
+- name: Install Zsh-Autosuggestions
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "/home/{{ ansible_user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+  become_user: "{{ ansible_user }}"
+  when: not zsh_autosuggestions_installed.stat.exists
+
+
+# Update .zshrc to use Powerlevel10k and plugins based upon template
+- name: Create .zshrc from template
+  ansible.builtin.template:
+    src: zshrc.j2
+    dest: "/home/{{ ansible_user }}/.zshrc"
+    owner: "{{ ansible_user }}"
+  become_user: "{{ ansible_user }}"
+
+# Update .tmux.conf based upon template
+- name: Create .tmux.conf from template
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: "/home/{{ ansible_user }}/.tmux.conf"
+    owner: "{{ ansible_user }}"
+  become_user: "{{ ansible_user }}"
+
+# 
+
+# Note: The .zshrc template includes configuration to source the Powerlevel10k theme and enable the syntax highlighting and autosuggestions plugins. You can customize the template further to include any additional settings or aliases you want in your Zsh environment.

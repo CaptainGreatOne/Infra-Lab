@@ -1,0 +1,72 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/verify
+
+- name: Check Go version
+  ansible.builtin.command: 
+    cmd: /usr/local/go/bin/go version
+  register: go_version
+  changed_when: false
+
+- name: Assert Go is installed
+  ansible.builtin.assert:
+    that:
+      - go_version.rc == 0
+    fail_msg: "Go is not installed or not in PATH"
+    success_msg: "Go is installed: {{ go_version.stdout }}"
+
+- name: Check Ansible version
+  ansible.builtin.command: 
+    cmd: ansible --version
+  register: ansible_version_check
+  changed_when: false
+
+# - name: Debug ansible version output
+#   ansible.builtin.debug:
+#     var: ansible_version_check
+
+- name: Assert Ansible is installed
+  ansible.builtin.assert:
+    that:
+      - ansible_version_check.rc == 0
+    fail_msg: "Ansible is not installed or not in PATH"
+    success_msg: "Ansible is installed: {{ ansible_version_check.stdout_lines[0] }}"
+
+- name: Terraform version check
+  ansible.builtin.command: 
+    cmd: terraform --version
+  register: terraform_version
+  changed_when: false
+
+- name: Assert Terraform is installed
+  ansible.builtin.assert:
+    that:
+      - terraform_version.rc == 0
+    fail_msg: "Terraform is not installed or not in PATH"
+    success_msg: "Terraform is installed: {{ terraform_version.stdout }}"
+
+- name: Check Zsh installed
+  ansible.builtin.command: 
+    cmd: zsh --version
+  register: zsh_version
+  changed_when: false
+
+- name: Assert Zsh is installed
+  ansible.builtin.assert:
+    that:
+      - zsh_version.rc == 0
+    fail_msg: "Zsh is not installed or not in PATH"
+    success_msg: "Zsh is installed: {{ zsh_version.stdout }}" 
+
+- name: check eza version
+  ansible.builtin.command: 
+    cmd: eza --version
+  register: eza_version
+  changed_when: false 
+
+- name: Assert eza is installed
+  ansible.builtin.assert:
+    that:
+      - eza_version.rc == 0
+    fail_msg: "eza is not installed or not in PATH"
+    success_msg: "eza is installed: {{ eza_version.stdout }}"

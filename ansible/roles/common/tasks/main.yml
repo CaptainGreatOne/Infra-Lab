@@ -1,0 +1,52 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/common
+
+- name: Configure dnf fastest mirror
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/dnf.conf
+    line: "{{ item }}"
+    state: present
+  loop:
+    - "fastestmirror=True"
+    - "retries=10"
+    - "timeout=60"
+
+- name: Update all packages
+  ansible.builtin.dnf:
+    name: '*'
+    state: latest
+    update_cache: yes
+
+- name: Ensure /etc/sysconfig/network exists
+  ansible.builtin.file:
+    path: /etc/sysconfig/network
+    state: touch
+    mode: '0644'
+
+- name: Set HOSTNAME entry in /etc/sysconfig/network
+  ansible.builtin.lineinfile:
+    path: /etc/sysconfig/network
+    regexp: '^HOSTNAME='
+    line: "HOSTNAME={{ hostname }}"
+    state: present
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+    use: "redhat"
+
+- name: determine admin account is configured properly. 
+  ansible.builtin.user: 
+    name: admin 
+    state: present 
+    groups: wheel 
+    append: yes 
+    shell: /bin/bash 
+    password: "{{ 'password' | password_hash('sha512') }}"
+
+- name: deploy punlic ssh key for admin account
+  ansible.builtin.authorized_key:
+    user: admin
+    state: present
+    key: "{{ lookup('file', '~/.ssh/infra-lab-sister.pub') }}"
