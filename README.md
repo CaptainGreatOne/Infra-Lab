@@ -25,6 +25,7 @@ Both machines run Fedora 43 KDE Desktop and communicate over a VirtualBox bridge
 ## Documentation
 - [Golang Wep-api application](./go/web-api/README.md) - documentation for the web-api module, a RESTful API written in golang. 
 - [Setup Instructions](./setup.md) - Setup instructions is a clear documentation of the setup of the primary Fedora VM. Includes details of VM configuration, tool installation, shell configuration, and more 
+- [Github Recovery Tool](./git-heal.md) - tool created to remedy local git repo corruption. 
 - [Notes](./notes.md) - Notes is a record of steps and personal observations taken during this lab. Includes valuable information, such as specific commands to dconfigure and debug failueres, as well as notes on said failures and steps taken to resolve such errors. 
 
 ---
