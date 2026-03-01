@@ -19,8 +19,8 @@ The server starts on port `8080` by default.
 
 | Endpoint Method | Endpoint Name | 
 | ---- | ---- | 
-| GET | /hello | 
-| GET | /hello/:name |
+| GET | /hellowWorld | 
+| GET | /helloUser |
 | GET | /system | 
 | POST | /echo | 
 | GET | /repo | 
@@ -30,24 +30,24 @@ Returns a static greeting message.
 
 **Request**
 ```
-GET /hello
+GET /helloWorld
 ```
 
 **Response**
 ```json
 {
-  "message": "Hello from infra-lab web-api!"
+  "message": "Hello World"
 }
 ```
 
 ---
 
-### GET /hello/:name
-Returns a personalised greeting using the provided name as a URL parameter.
+### GET /helloUser
+Returns a personalised greeting using the provided name as a URL query parameter.
 
 **Request**
 ```
-GET /hello/Alex
+GET /helloUser?name={userInputHere}
 ```
 
 **Response**
