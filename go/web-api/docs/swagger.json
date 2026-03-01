@@ -1,0 +1,104 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A REST API built with Go and Gin as part of the infra-lab project.",
+        "title": "infra-lab web-api",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/helloUser": {
+            "get": {
+                "description": "Returns a dynamic greeting message",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Hello"
+                ],
+                "summary": "Hello User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the user to greet",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HelloUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/helloWorld": {
+            "get": {
+                "description": "Returns a \"Hello World\" greeting message",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Hello"
+                ],
+                "summary": "Hello World",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HelloWorldResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/repo": {
+            "post": {
+                "description": "Returns information about the current repository from Github",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "repo github repository info"
+                ],
+                "summary": "Get repository info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.HelloUserResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Hello {User Name Here}}!"
+                }
+            }
+        },
+        "models.HelloWorldResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Hello World!"
+                }
+            }
+        }
+    }
+}

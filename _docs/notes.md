@@ -397,12 +397,18 @@ Go's module system is designed around the assumption that modules are shareable 
 
 Local projects can have a simple name, such as 'web-api'. This is fine since it is intended for personal use, sinlge use, or non distributed use. Otherwise, use that unique identifier. 
 
-#### Building that web-api out. 
+### Building that web-api out. 
 
 First, install swaggo/swag. This is swagger, but in go. It works by reading special comment annotations made before each handler functions, and then auto generating an OpenAPI spec and swagger ui from them. 
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
+```
+
+then, the packages have to actually be added to the project: 
+```bash
+go get github.com/swaggo/gin-swagger
+go get github.com/swaggo/files
 ```
 
 example annotations as shown: 
@@ -415,11 +421,94 @@ example annotations as shown:
 // @Router /hello [get]
 ```
 
+once all annotations are written, make sure to register the swagger route in the `main.go` file. This both imports the packages into the project for use and also registers the swagger endpoint. 
+```go
+import (
+    swaggerFiles "github.com/swaggo/files"
+    ginSwagger "github.com/swaggo/gin-swagger"
+    _ "github.com/CaptainGreatOne/infra-lab/web-api/docs"
+)
+
+// inside main()
+router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+```
+
 after that, run the following command to get it going: 
 ```go
 swag init
 
 ```
+
+When the `swag init` command is first run, it will create a folder structure in the abse directory of the go project like so: 
+```
+docs/
+├── docs.go         ← Go code that embeds the spec
+├── swagger.json    ← OpenAPI spec in JSON format
+└── swagger.yaml    ← OpenAPI spec in YAML format
+```
+These are the actual OpenAPI documents created by swagger. When there is a change to the endpoint, the `swag init` command will need to be rerun so new changes can be reflected. Additionally, the swagger pages can be viewed in browser my going to the following url after the above instructions have been completed and the app is running. You can write a reroute function to reroute the `http://localhost:8080/` to the swagger endpoint. This is a personal choice and I have elected not to do so. 
+```
+http://localhost:8080/swagger/index.html
+```
+
+One thing to note. These docs are automatically generated. Thus, they do not need to be saved as part of the github repo and can be added to the repo's `.gitignore` file using the following line: `./go/web-api/docs`. 
+
+---
+
+#### An issue with swagger
+When using the `swag init` command, two lines where being generated in one of the docs which would throw an error. This would cause me to have to manually delete the lines everytime the swagger docs are updated. There is apparently an issue when getting the @latest version of swag, the newest version is not infact downloaded. \
+See the following diescussion thread. Yes it is old, but if it works, it works. 
+[Link to github issue thread discussion](https://github.com/swaggo/swag/issues/1568)
+I updated the dependency using the following command: 
+
+```
+go get github.com/swaggo/swag@v1.16.1
+go install github.com/swaggo/swag/cmd/swag@v1.16.1
+```
+
+
+#### Updating the OpenAPI docs in the app
+The need to define parameters in the OpenApi docs is not shown in the above example. 
+Below is an example defining a single parameter. 
+```
+// @Param name path string true "The name to greet"
+```
+The format is:
+```
+// @Param [name] [in] [type] [required] [description]
+```
+The value `in` can have one of the following values: 
+- `path` - parameter is part of the url path
+- `query` - parameter is a query variable
+- `body` - parameter is part of the request message body
+- `header` - parameter is part of the request message header
+- `formData` - tbd
+
+
+
+
+### Actually Running the application
+At the time of writing this, only the /hello and /hello:name endpoints have been fully defined for testing. Additionally, the swagger annotations have also been defined for these endpoints. 
+
+To run the go application, do the following: 
+
+#### Run the app
+```bash
+go run main.go
+```
+
+#### send the app a request
+```
+curl http://localhost:8080/hello
+curl http://localhost:8080/hello/BillyBob
+```
+
+#### In the event you need a binary
+```
+go build -o web-api main.go
+./web-api
+```
+
 
 
 

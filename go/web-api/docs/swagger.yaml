@@ -1,0 +1,68 @@
+basePath: /
+definitions:
+  models.HelloUserResponse:
+    properties:
+      message:
+        example: Hello {User Name Here}}!
+        type: string
+    type: object
+  models.HelloWorldResponse:
+    properties:
+      message:
+        example: Hello World!
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A REST API built with Go and Gin as part of the infra-lab project.
+  title: infra-lab web-api
+  version: "1.0"
+paths:
+  /helloUser:
+    get:
+      description: Returns a dynamic greeting message
+      parameters:
+      - description: Name of the user to greet
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HelloUserResponse'
+      summary: Hello User
+      tags:
+      - Hello
+  /helloWorld:
+    get:
+      description: Returns a "Hello World" greeting message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HelloWorldResponse'
+      summary: Hello World
+      tags:
+      - Hello
+  /repo:
+    post:
+      description: Returns information about the current repository from Github
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get repository info
+      tags:
+      - repo github repository info
+swagger: "2.0"
